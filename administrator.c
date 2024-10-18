@@ -134,11 +134,12 @@ close(clientsocket);
 return true;
 */
 
-default:
+/*default:
 send(clientsocket , "Unfortunately had to logout\n" , strlen("Unfortunately had to logout\n"),0);
 close(clientsocket);
 return false;
-}
+*/}
+
 }
 }
 return false;
@@ -294,25 +295,6 @@ else if (readdata == 0) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*struct Employee emp;
 
 char namePrompt[] = "Enter employee name: ";
@@ -332,7 +314,7 @@ char passPrompt[] = "Enter password: ";
 send(clientsocket, passPrompt, strlen(passPrompt), 0);
 readdata = recv(clientsocket, emp.password, sizeof(emp.password)-1, 0);
 if (readdata <= 0) {
-send(clientsocket,"Couldn't receive employee password from client",strlen("Couldn't receive employee password from client"),0);
+==send(clientsocket,"Couldn't receive employee password from client",strlen("Couldn't receive employee password from client"),0);
 return false;
 }
 emp.password[readdata]='\0';
@@ -412,13 +394,11 @@ fflush(stdout);
 return false;
 }
 */
-bool modify_employeedetails(int clientsocket)
-{
-bool modify_employeedetails(int clientsocket)
+
+/*bool modify_employeedetails(int clientsocket)
 {
     char empid_buffer[10]; // Buffer to receive employee ID
     send(clientsocket, "Enter the employee ID to update: ", strlen("Enter the employee ID to update: "), 0);
-    
     ssize_t bytesread = recv(clientsocket, empid_buffer, sizeof(empid_buffer) - 1, 0);
     if (bytesread <= 0) {
         perror("Error receiving employee ID from client");
@@ -460,19 +440,25 @@ bool modify_employeedetails(int clientsocket)
     send(clientsocket, "Employee ID not found. Please try again.\n", strlen("Employee ID not found. Please try again.\n"), 0);
     return false;
 }
+}
 
 
-
-
-
-/*char empid[100];
+char empid_buffer[100];
 send(clientsocket, "Enter the employee ID to update: ", strlen("Enter the employee ID to update: "), 0);
-ssize_t bytesread = recv(clientsocket, &empid, sizeof(empid)-1, 0);
-if (bytesread == -1 || bytesread < sizeof(empid))
+ssize_t bytesread = recv(clientsocket, empid_buffer, sizeof(empid_buffer)-1, 0);
+if (bytesread <0 bytesread < sizeof(empid))
 {
 perror("Error receiving employee ID from client");
 return false;
 }
+else if (bytesread == 0) {
+        // Client has closed the connection
+        printf("Client closed the connection.\n");
+        return false; // or handle it according to your logic
+ }
+
+empid_buffer[bytesread] = '\0'; // Null-terminate the string
+int empid = atoi(empid_buffer); // Convert to int
 
 struct Employee emprecord;
 int dbfile = open(DB_FILE, O_RDWR);
@@ -483,21 +469,149 @@ return false;
 }
 
 bool found = false;
+off_t offset = 0;
+
 while (read(dbfile, &emprecord, sizeof(struct Employee)) > 0)
 {
 //if (*emprecord.employeeID == empid)
 if (emprecord.employeeID == empid)
-
 {
 found = true;
+break;
+}
+offset += sizeof(struct Employee); 
+}
+
+if (!found) {
+close(dbfile);
+send(clientsocket, "Employee ID not found. Please try again.\n", strlen("Employee ID not found. Please try again.\n"), 0);
+return false;
+ }
+
+lseek(dbfile, -sizeof(struct Employee), SEEK_CUR);
+write(dbfile, &emprecord, sizeof(struct Employee));
+close(dbfile);
+return true;
+
 */
-send(clientsocket, "Enter updated employee name: ", strlen("Enter updated employee name: "), 0);
-bytesread = recv(clientsocket, emprecord.name, sizeof(emprecord.name) - 1, 0);
-if (bytesread <= 0)
+
+
+
+bool modify_employeedetails(int clientsocket)
 {
+    char empid_buffer[100]; 
+    send(clientsocket, "Enter the employee ID to update: ", strlen("Enter the employee ID to update: "), 0);
+    ssize_t bytesread = recv(clientsocket, &empid_buffer, sizeof(empid_buffer), 0);
+    if (bytesread == -1 || bytesread < sizeof(empid_buffer))
+    {
+        perror("Error receiving employee ID from client");
+        return false;
+    }
+empid_buffer[bytesread] = '\0'; // Null-terminate the string
+int empid = atoi(empid_buffer); // Convert to int
+
+    const char *dbFileName = "employee_db.txt";
+    int dbfile = open(dbFileName, O_RDWR);
+    if (dbfile == -1)
+    {
+        perror("Error opening the database file");
+        return false;
+    }
+
+    // Lock the file for writing
+    if (flock(dbfile, LOCK_EX) == -1)
+    {
+        perror("Error locking the file for writing");
+        close(dbfile);
+        return false;
+    }
+
+    // Iterate through the file to find the student record
+    struct Employee emprecord;
+    bool found = false;
+
+    while (read(dbfile, &emprecord, sizeof(struct Employee)) > 0)
+    {
+        if (emprecord.employeeID == empid)
+        {
+            found = true;
+
+            // Prompt for and receive updated information from the client
+            send(clientsocket, "Enter updated employee name: ", strlen("Enter updated employee name: "), 0);
+            bytesread = recv(clientsocket, emprecord.name, sizeof(emprecord.name) - 1, 0);
+            if (bytesread <= 0)
+            {
+                send(clientsocket, "Error receiving updated employee name from client", strlen("Error receiving updated employee name from client"), 0);
+                return false;
+            }
+            emprecord.name[bytesread] = '\0';
+
+
+            send(clientsocket, "Enter updated student password: ", strlen("Enter updated student password: "), 0);
+            bytesread = recv(clientsocket, emprecord.password, sizeof(emprecord.password) - 1, 0);
+            if (bytesread <= 0)
+            {
+                send(clientsocket, "Error receiving updated employee password from client", strlen("Error receiving updated employee password from client"), 0);
+                return false;
+            }
+            emprecord.password[bytesread] = '\0';
+
+
+send(clientsocket, "Enter updated employee role: \n", strlen("Enter updated employee role: \n"),0);
+bytesread = recv(clientsocket, emprecord.role,sizeof(emprecord.role)-1,0);
+if(bytesread<=0){
+send(clientsocket, "Error in receiving updates employee role", strlen("Error in receiving updates employee role"),0);
+return false;
+}
+emprecord.role[bytesread] = '\0';
+
+
+            // Move the file pointer back to the beginning of the record and update it
+            lseek(dbfile, -sizeof(struct Employee), SEEK_CUR);
+            write(dbfile, &emprecord, sizeof(struct Employee));
+            break;
+        }
+    }
+
+    if (found)
+    {
+        // Student record updated successfully
+        const char *updateMessage = "employee record updated successfully";
+        send(clientsocket, updateMessage, strlen(updateMessage), 0);
+    }
+    else
+    {
+        // Student not found
+        const char *notFoundMessage = "employee not found";
+        send(clientsocket, notFoundMessage, strlen(notFoundMessage), 0);
+    }
+
+    // Unlock the file
+    if (flock(dbfile, LOCK_UN) == -1)
+    {
+        perror("Error unlocking the file");
+    }
+
+    // Close the file
+    close(dbfile);
+
+    return found;  // Return whether the student was found and updated.
+}
+
+
+////////           employee name ///////////////////
+/*send(clientsocket, "Enter updated employee name: ", strlen("Enter updated employee name: "), 0);
+bytesread = recv(clientsocket, emprecord.name, sizeof(emprecord.name) - 1, 0);
+if (bytesread < 0){
 send(clientsocket, "Error receiving updated employee name from client", strlen("Error receiving updated employee name from client"), 0);
 return false;
 }
+else if (bytesread == 0) {
+                printf("Client closed the connection while updating name.\n");
+                close(dbfile);
+                return false; // Handle client closure
+            }
+
 emprecord.name[bytesread] = '\0';
 
 
@@ -534,9 +648,10 @@ else
 {
 const char *notfoundtxt = "Employee was not found\n";
 send(clientsocket, notfoundtxt, strlen(notfoundtxt), 0);
+return false;
 }
 
 close(dbfile);
 return true;
 }
-
+*/
