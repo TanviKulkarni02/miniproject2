@@ -3,7 +3,7 @@
 
 void handle_admin(int client_socket);
 void handle_admin_session(int client_socket);
-bool admin_operation_handler(int socket);
+bool admin_operation_handler(int clientsocket);
 bool authenticate_admin(int clientsocket);
 bool add_newemployee(int clientsocket);
 bool modify_employeedetails(int clientsocket);

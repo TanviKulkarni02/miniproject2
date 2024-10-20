@@ -8,7 +8,7 @@ CFLAGS = -Wall -g
 SRCS = server.c administrator.c
 
 # Header files
-HDRS = administrator.h
+HDRS = administrator.h 
 
 # Output executable
 TARGET = server
