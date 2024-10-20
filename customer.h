@@ -8,5 +8,5 @@ char username[50];
 char bal[1024];
 bool active;
 };
-bool customer_login(int clientSocket);
+bool login_customer(int clientSocket);
 #endif

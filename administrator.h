@@ -12,7 +12,7 @@ bool active;
 
 
 
-bool administrator_login(int clientSocket);
-bool authenticate_administrator(int clientSocket);
-bool change_password(int clientSocket);
+bool login_administrator(int clientsocket);
+bool authenticate_administrator(int clientsocket);
+//bool change_password(int clientsocket);
 #endif

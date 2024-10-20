@@ -7,8 +7,8 @@
 #include<pthread.h>
 #include<stdbool.h>
 #include<string.h>
-#include"admin.h"
-#include"employee.h"
+#include"administrator.h"
+#include"bankemp.h"
 #define PORT 5145
 #define MAX 5
 void *handleclient(void * clientSocket)

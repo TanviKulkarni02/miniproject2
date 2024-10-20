@@ -14,7 +14,7 @@
 #include "bankemp.h"
 bool login_administrator(int clientsocket);
 bool authenticate_administrator(int clientsocket);
-bool change_password(int clientsocket);
+//bool change_password(int clientsocket);
 void save_credentials(const char *username, const char *password);
 bool verify_credentials(const char *username, const char *password);
 bool add_employee(int clientsocket);
@@ -125,7 +125,7 @@ close(clientsocket);
 return false;
 }
 }
-bool change_pass(int clientsocket)
+/*bool change_password(int clientsocket)
 {
 char passmod[10];
 send(clientsocket,"enter new password\n",strlen("enter new password\n"),0);
@@ -140,6 +140,7 @@ else
 save_credentials("Shatakshee",passmod);
 return true;
 }
+*/
 
 void save_credentials(const char *username, const char *password) {
 FILE *file = fopen("adminlogin.txt", "w");
@@ -315,7 +316,7 @@ printf("%s,%s\n",temp.id,empid);
 }
 
 
-bool manage_user(int cd)
+bool manage_userroles(int clientsocket)
 {
 struct employee empmod;
     char empid[10];
@@ -323,8 +324,8 @@ struct employee empmod;
     char enter_id[] = "-----Update Employee Data-----\nEnter ID of the employee whose data needs to be changed:";
 
     // Ask for the employee ID to update
-    write(cd, enter_id, sizeof(enter_id));
-    ssize_t bytes_id = read(cd, empid, sizeof(empid));
+    write(clientsocket, enter_id, sizeof(enter_id));
+    ssize_t bytes_id = read(clientsocket, empid, sizeof(empid));
     if (bytes_id == -1) {
         perror("Error in receiving Employee ID");
         return false;
@@ -338,8 +339,8 @@ struct employee empmod;
 
     //write(cd, "ID:", strlen("ID:"));
     //read(cd, data_new.id, sizeof(data_new.id));
-	write(cd,"role",strlen("role"));
-	read(cd,empmod.role,sizeof(empmod.role));
+	write(clientsocket,"role",strlen("role"));
+	read(clientsocket,empmod.role,sizeof(empmod.role));
 
     // Open the employee database file in read-write mode
     int dbfile = open("employee.txt", O_RDWR);
