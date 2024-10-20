@@ -3,9 +3,9 @@
 struct customer
 {
 char id[10];
-char password[20];
-char username[50];
-char bal[1024];
+char password[100];
+char username[100];
+char balance[100];
 bool active;
 };
 bool login_customer(int clientSocket);

@@ -18,7 +18,6 @@ bool authenticate_administrator(int clientsocket);
 void save_credentials(const char *username, const char *password);
 bool verify_credentials(const char *username, const char *password);
 bool add_employee(int clientsocket);
-int get_id();
 void update_id(int id);
 int read_id();
 bool modify_employeedetails(int clientsocket);
@@ -120,7 +119,7 @@ else
    if (verify_credentials(username, password))
 {return true;}
 else
-{send(clientsocket,"invalid credentials\n",strlen("invalid credentials\n"),0);
+{send(clientsocket,"credentials were valid\n",strlen("credentials were invalid\n"),0);
 close(clientsocket);
 return false;
 }
@@ -176,29 +175,29 @@ bool verify_credentials(const char *username, const char *password) {
 
 bool add_employee(int clientsocket)
 {
-struct employee emp1;
+struct Employee emp1;
 //int empid=get_id();
 //add.id=empid;
-send(clientsocket,"enter empid\n",strlen("enter empid\n"),0);
+send(clientsocket,"enter employee id\n",strlen("enter employee id\n"),0);
 int readbytes=recv(clientsocket,emp1.id,sizeof(emp1.id),0);
 emp1.id[read -1]='\0';
 send(clientsocket,"enter username\n",strlen("enter username\n"),0);
  readbytes=recv(clientsocket,emp1.username,sizeof(emp1.username),0);
 //add.id[read -1]='\0';
 if(readbytes<=0)
-{send(clientsocket,"error in fetching username\n",strlen("error in fetching username\n"),0);
+{send(clientsocket,"error occurred in getting username\n",strlen("error occurred in getting username\n"),0);
 return false;}
 emp1.username[readbytes-1]='\0';
 send(clientsocket,"enter password\n",strlen("enter password\n"),0);
 readbytes=recv(clientsocket,emp1.password,sizeof(emp1.password),0);
 if(readbytes<=0)
-{send(clientsocket,"error in fetching password\n",strlen("error in fetching password\n"),0);
+{send(clientsocket,"error occurred in fetching password\n",strlen("error occurred in fetching password\n"),0);
 return false;}
 emp1.password[readbytes-1]='\0';
 send(clientsocket,"enter role of employee\n",strlen("enter role of employee\n"),0);
 readbytes=recv(clientsocket,emp1.role,sizeof(emp1.role),0);
 if(readbytes<=0)
-{send(clientsocket,"error in fetching role\n",strlen("error in fetching role\n"),0);
+{send(clientsocket,"error occurred in getting role\n",strlen("error occurred in getting role\n"),0);
 return false;}
 emp1.role[readbytes-1]='\0';
 FILE *file=fopen("employee.txt","a");

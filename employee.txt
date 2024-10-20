@@ -1,0 +1,4 @@
+5,40,ram,employee
+6,89,shyam,manager
+7,e12,paul,customer
+
