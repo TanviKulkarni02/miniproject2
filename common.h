@@ -9,15 +9,17 @@ char name[100];
 char password[100];
 char role[100];
 bool active;
+//char custid[100];
 };
 
 struct Customer {
- int id;
+ char custid[100];
     char name[100];
     char password[100];
-    double balance;
+    char balance[100];
     char transactionHistory[100][100]; // Simple transaction history
     int transactionCount;
+bool active;
 };
 
 

@@ -5,10 +5,10 @@ CC = gcc
 CFLAGS = -Wall -g
 
 # Source files
-SRCS = server.c administrator.c
+SRCS = server.c administrator.c bankemp.c
 
 # Header files
-HDRS = administrator.h 
+HDRS = administrator.h bankemp.h common.h 
 
 # Output executable
 TARGET = server
