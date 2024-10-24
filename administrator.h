@@ -2,8 +2,9 @@
 #define ADMIN
 
 
-bool admin_login(int clientSocket);
-bool authenticate_admin(int clientSocket);
-bool change_pass(int clientSocket);
+
+bool login_administrator(int clientsocket);
+bool authenticate_administrator(int clientsocket);
+bool change_adminpassword(int clientsocket);
 
 #endif

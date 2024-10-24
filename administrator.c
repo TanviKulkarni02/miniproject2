@@ -12,9 +12,12 @@
 #include <sys/socket.h>
 #include "administrator.h"
 #include "bankemp.h"
+#include "customer.h"
+//#include "common.h"
+
 bool login_administrator(int clientsocket);
 bool authenticate_administrator(int clientsocket);
-//bool change_password(int clientsocket);
+bool change_adminpassword(int clientsocket);
 void save_credentials(const char *username, const char *password);
 bool verify_credentials(const char *username, const char *password);
 bool add_employee(int clientsocket);
@@ -28,7 +31,7 @@ struct administratorcredentials  //edited
 char username[100];
 char password[100];
 };
-bool admin_login(int clientsocket)
+bool login_administrator(int clientsocket)
 {printf("hello\n");
 send(clientsocket,"hello\n",strlen("hello\n"),0);
 
@@ -63,11 +66,11 @@ switch (choice){
 	{send(clientsocket,"successfully modify\n",strlen("successfully modify\n"),0);}
 	break;
 	case 3:
-		if(manage_user(clientsocket))
+		if(manage_userroles(clientsocket))
 	{send(clientsocket,"success\n",strlen("success\n"),0);}
 	break;
 	case 4:
-		if(change_password(clientsocket))
+		if(change_adminpassword(clientsocket))
 	{send(clientsocket,"successfully changed\n",strlen("successfully changed\n"),0);}
 
 	break;
@@ -119,12 +122,14 @@ else
    if (verify_credentials(username, password))
 {return true;}
 else
-{send(clientsocket,"credentials were valid\n",strlen("credentials were invalid\n"),0);
+{send(clientsocket,"credentials were invalid\n",strlen("credentials were invalid\n"),0);
 close(clientsocket);
 return false;
 }
 }
-/*bool change_password(int clientsocket)
+
+
+bool change_adminpassword(int clientsocket)
 {
 char passmod[10];
 send(clientsocket,"enter new password\n",strlen("enter new password\n"),0);
@@ -136,13 +141,13 @@ if (passmod[readbytes -1]=='\n')
 {passmod[readbytes -1]='\0';}
 else
 {passmod[readbytes -1]='\0';}
-save_credentials("Shatakshee",passmod);
+save_credentials("tanvi",passmod);
 return true;
 }
-*/
+
 
 void save_credentials(const char *username, const char *password) {
-FILE *file = fopen("adminlogin.txt", "w");
+FILE *file = fopen("admin_login.txt", "w");
 if (file == NULL) {
 perror("Error opening file");
 exit(EXIT_FAILURE);
@@ -152,7 +157,7 @@ exit(EXIT_FAILURE);
     fclose(file);
 }
 bool verify_credentials(const char *username, const char *password) {
-    FILE *file = fopen("adminlogin.txt", "r");
+    FILE *file = fopen("admin_login.txt", "r");
     if (file == NULL) {
         perror("Error opening file");
         return false;
@@ -180,7 +185,7 @@ struct Employee emp1;
 //add.id=empid;
 send(clientsocket,"enter employee id\n",strlen("enter employee id\n"),0);
 int readbytes=recv(clientsocket,emp1.id,sizeof(emp1.id),0);
-emp1.id[read -1]='\0';
+emp1.id[readbytes -1]='\0';
 send(clientsocket,"enter username\n",strlen("enter username\n"),0);
  readbytes=recv(clientsocket,emp1.username,sizeof(emp1.username),0);
 //add.id[read -1]='\0';
@@ -215,7 +220,7 @@ return false;
 
 
 bool modify_employeedetails(int clientsocket) {
-    struct employee empmod;
+    struct Employee empmod;
     char empid[10];
     char format[300];
     char enter_id[] = "-----Update Employee Data-----\nEnter ID of the employee whose data needs to be changed:";
@@ -243,8 +248,9 @@ bool modify_employeedetails(int clientsocket) {
     }
 
     char line[300];
-    struct employee temp;
+    struct Employee temp;
     bool is_there = false;
+
 
     struct flock lock;
     memset(&lock, 0, sizeof(lock));
@@ -266,7 +272,7 @@ bool modify_employeedetails(int clientsocket) {
 
             current_position = lseek(dbfile, 0, SEEK_CUR);
 
-            sscanf(line, "%[^,],%[^,],%[^,],%[^,]", temp.id, temp.password, temp.username, &temp.role);
+            sscanf(line, "%[^,],%[^,],%[^,],%[^,]", temp.id, temp.password, temp.username, temp.role);
             printf("Read Employee: ID=%s, Name=%s, Password=%s, Role=%s\n", temp.id, temp.password, temp.username, temp.role);
 printf("%s,%s\n",temp.id,empid);
             if (atoi(temp.id)==atoi( empid)) {
@@ -280,7 +286,7 @@ printf("%s,%s\n",temp.id,empid);
                     return false;
                 }
 
-                strcpy(empmod.password, temp.password);  
+ //               strcpy(empmod.password, temp.password);  
                 snprintf(format, sizeof(format), "%s,%s,%s,%s\n", empmod.id, empmod.password, empmod.username, empmod.role);
 
                 lseek(dbfile, current_position - strlen(line) - 1, SEEK_SET);
@@ -317,14 +323,14 @@ printf("%s,%s\n",temp.id,empid);
 
 bool manage_userroles(int clientsocket)
 {
-struct employee empmod;
+struct Employee empmod;
     char empid[10];
     char format[300];
     char enter_id[] = "-----Update Employee Data-----\nEnter ID of the employee whose data needs to be changed:";
 
     // Ask for the employee ID to update
     write(clientsocket, enter_id, sizeof(enter_id));
-    ssize_t bytes_id = read(clientsocket, empid, sizeof(empid));
+    ssize_t bytes_id = read(clientsocket, empid, sizeof(empid)); //server reads empid sent by client
     if (bytes_id == -1) {
         perror("Error in receiving Employee ID");
         return false;
@@ -350,7 +356,7 @@ struct employee empmod;
 
     // File read buffer for lines
     char line[300];
-    struct employee temp;
+    struct Employee temp;
     bool is_there = false;
 
     // Lock structure for file locking
@@ -360,7 +366,7 @@ struct employee empmod;
     lock.l_whence = SEEK_SET;  // Lock from the start of the file
 
     // Keep track of the file offset
-    off_t record_offset = 0;
+//    off_t record_offset = 0;
     off_t current_position = 0;
 
     // Buffer to store characters read from the file
@@ -381,7 +387,7 @@ struct employee empmod;
             current_position = lseek(dbfile, 0, SEEK_CUR);
 
             // Parse the line to extract employee details
-            sscanf(line, "%[^,],%[^,],%[^,],%[^,]", temp.id, temp.password, temp.username, &temp.role);
+            sscanf(line, "%[^,],%[^,],%[^,],%[^,]", temp.id, temp.password, temp.username, temp.role);
             printf("Read Employee: ID=%s, Name=%s, Password=%s, Role=%s\n", temp.id, temp.password, temp.username, temp.role);
 	printf("%s,%s\n",temp.id,empid);
             // Check if the employee ID matches
@@ -400,7 +406,7 @@ struct employee empmod;
                 }
 
                 // Prepare updated employee data
-                strcpy(empmod.password, temp.password);  // Preserve the old password
+//                strcpy(empmod.password, temp.password);  // Preserve the old password
                 snprintf(format, sizeof(format), "%s,%s,%s,%s\n", temp.id, temp.password, temp.username, empmod.role);
 
                 // Move file pointer to the start of the current employee record
@@ -408,7 +414,7 @@ struct employee empmod;
 
                 // Write the updated employee record
                 if (write(dbfile, format, strlen(format)) == -1) {
-                    write(cd, "Error in Updating Data", strlen("Error in Updating Data"));
+                    write(clientsocket, "Error in Updating Data", strlen("Error in Updating Data"));
                     close(dbfile);
                     return false;
                 }
@@ -432,7 +438,7 @@ struct employee empmod;
 
     // Handle case where employee is not found
     if (!is_there) {
-        write(cd, "Employee Not Found", strlen("Employee Not Found"));
+        write(clientsocket, "Employee Not Found", strlen("Employee Not Found"));
         return false;
     }
 

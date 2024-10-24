@@ -1,4 +1,9 @@
-5,40,ram,employee
-6,89,shyam,manager
-7,e12,paul,customer
+50,60,,manager
 
+1,tanupass,tanu,employee
+2,rampass,ram,manager
+9
+,,yash
+,manager
+
+loyee

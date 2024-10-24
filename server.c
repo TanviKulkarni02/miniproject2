@@ -9,7 +9,14 @@
 #include<string.h>
 #include"administrator.h"
 #include"bankemp.h"
-#define PORT 5145
+//#include"login.h"
+#include "loan.h"
+#include "customer.h"
+
+//#include "common.h"
+#define PORT 5031
+
+
 #define MAX 5
 void *handleclient(void * clientSocket)
 {
@@ -28,13 +35,15 @@ pthread_exit (NULL);
 buff[read]='\0';
 if(strstr(buff,"admin")!=NULL)
 {
-admin_login(socket);
+login_administrator(socket);
 }
 else if(strstr(buff,"customer")!=NULL)
 {customer_login(socket);}
 else if (strstr(buff,"employee")!=NULL)
-{employee_login(socket);}
-send(socket,buff,read,0);
+{login_bankemployee(socket);}
+else if(strstr(buff,"manager")!=NULL)
+{manager_login(socket);}
+send(socket,buff,read,0); //when none of these print menu again
 
 }// while end
 pthread_exit(NULL);

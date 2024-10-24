@@ -7,7 +7,8 @@
 #include<sys/types.h>
 #include<stdlib.h>
 #include<string.h>
-#define PORT 5145
+#define PORT 5031
+
 
 
 int main()
@@ -38,6 +39,7 @@ while(1)
 	printf("recieved : %s\n",buff);
 char buffer[1024];
 fgets(buffer,sizeof(buffer),stdin);
+printf("in client\n");
 send (client,buffer,strlen(buffer),0);
 
 }
